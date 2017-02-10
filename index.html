@@ -1,0 +1,158 @@
+<html>
+
+<head>
+  <style>
+	body {
+		background-color: black;
+		color: white;
+	}
+	
+	.main {
+		text-align: center;
+		width: 1280px;
+		margin: 0 auto;		
+	}
+	
+	.controls {
+		margin: 50px;
+	}
+	
+	.canvas {
+		position: relative;
+		height: 400px;
+		padding: 160px 440px;
+	}
+	
+	.canvas #daBg {
+		position: absolute;
+		top: 0;
+		left: 0;
+		height: 100%;
+		width: 100%;
+		background: white url('') no-repeat center center;
+		background-size: cover;
+		-webkit-filter: blur(5px);
+		-moz-filter: blur(5px);
+		-o-filter: blur(5px);
+		-ms-filter: blur(5px);
+		filter: blur(5px);
+		z-index: -1;
+	}
+	
+	.canvas .inner {
+		width: 400px;
+		height: 400px;
+		overflow: hidden;
+	}
+	
+	#daImage {
+		height: 570px;
+		width: 570px;
+		margin-top: -85px;
+		margin-left: -85px;
+		background: white url('') no-repeat center center;
+		background-size: cover;
+		animation: spin .5s linear infinite;
+	}
+	
+	@keyframes spin {
+	  from {
+		transform: rotate(0deg);
+	  }
+
+	  to {
+		transform: rotate(360deg);
+	  }
+	}
+  </style>
+  
+  <script>
+	var pressedChar;
+	var inervalId;
+	function init() {
+		document.getElementById('daFile').onchange = function (evt) {
+			var tgt = evt.target || window.event.srcElement,
+				files = tgt.files;
+
+			// FileReader support
+			if (FileReader && files && files.length) {
+				var fr = new FileReader();
+				fr.onload = function () {
+					document.getElementById('daImage').style.backgroundImage = 'url(\'' + fr.result + '\')';
+					document.getElementById('daBg').style.backgroundImage = 'url(\'' + fr.result + '\')';
+					spin();
+				}
+				fr.readAsDataURL(files[0]);
+			}
+
+			// Not supported
+			else {
+				// fallback -- perhaps submit the input to an iframe and temporarily store
+				// them on the server until the user's session ends.
+			}
+		}
+		
+		window.addEventListener('keyup', stopKeyboardPress);
+		window.addEventListener('keydown', keyboardPress);
+		
+		intervalId = setInterval(function(){
+			if(pressedChar) {
+				var spinsPerSecond = document.getElementById('daSpeed').value * 1;
+				if(pressedChar == 70) { //F
+					spinsPerSecond = spinsPerSecond + .1;
+				} else { //D
+					spinsPerSecond = spinsPerSecond - .1;
+				}
+				document.getElementById('daSpeed').value = Math.round(spinsPerSecond*10)/10;
+				spin();
+			}
+		}, 100);
+	}
+	
+	function keyboardPress(e) {
+		var key = e.keyCode;
+		
+		if(key == 70 || key == 68) {
+			e.preventDefault();
+			pressedChar = key;
+		}
+	}
+	
+	function stopKeyboardPress(e) {
+		pressedChar = null;
+	}
+	
+	function spin() {
+		var spinsPerSecond = document.getElementById('daSpeed').value || 2;
+		var image = document.getElementById('daImage');
+		
+		var speed = 1/spinsPerSecond;
+		
+		image.style.animationDuration = speed + 's';
+	}
+  </script>
+<head>
+
+<body>
+
+<div class="main">
+
+	<div class="controls">
+		<input type="file" id="daFile"><input onkeyup="" onkeydown="keyboardPress(event);" type="text" placeholder="spins per second" id="daSpeed"><button onclick="spin()">Spin!</button>
+	</div>
+	
+	<div class="canvas">
+		<div id="daBg"></div>
+		<div class="inner">
+			<div id="daImage"></div>
+		<div>
+	</div>
+
+</div>
+
+<script>
+	init();
+</script>
+
+</body>
+</html>
